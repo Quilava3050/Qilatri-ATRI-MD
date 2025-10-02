@@ -4,7 +4,7 @@
 
 ![Typing SVG](https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=36BCF7&center=true&vCenter=true&width=600&lines=Welcome+to+ATRI-MD!;Advanced+WhatsApp+Bot;Multi-Feature+%26+Customizable;Ready+for+Production!)
 
-<img src="https://github.com/user-attachments/assets/anime-banner.gif" width="400" alt="Azusa Banner"/>
+<img src="https://files.catbox.moe/nxvt5v.jpg" width="400" alt="Atri-MD"/>
 
 [![GitHub Stars](https://img.shields.io/github/stars/Quilava3050/ATRI-MD?style=for-the-badge&logo=github&color=yellow)](https://github.com/Quilava3050/ATRI-MD/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/Quilava3050/ATRI-MD?style=for-the-badge&logo=github&color=blue)](https://github.com/Quilava3050/ATRI-MD/network)
@@ -60,16 +60,19 @@ cd ATRi-MD
 npm install
 
 # Configure bot
-cp config.example.js config.js
+# config.js
 # Edit config.js with your settings
 
-# Start bot
-npm start
+
 
 
 <div align="center">
 
-![Installation Demo](https://github.com/user-attachments/assets/install-demo.gif)
+![Installation Demo]
+# Start bot
+# npm i
+# npm start
+# pairing
 
 </div>
 
@@ -80,13 +83,13 @@ npm start
 <div align="center">
 
 ### 📱 Bot Interface
-<img src="https://github.com/user-attachments/assets/bot-interface.png" width="300" alt="Bot Interface"/>
+<img src="https://files.catbox.moe/brn8j6.jpg" width="300" alt="Bot Interface"/>
 
 ### 🎵 Audio Effects
-<img src="https://github.com/user-attachments/assets/audio-effects.png" width="300" alt="Audio Effects"/>
+<img src="https://files.catbox.moe/2eg319.jpg" width="300" alt="Audio Effects"/>
 
 ### 🎮 Games
-<img src="https://github.com/user-attachments/assets/games.png" width="300" alt="Games"/>
+<img src="https://files.catbox.moe/1vxkej.jpg" width="300" alt="Games"/>
 
 </div>
 
@@ -207,7 +210,7 @@ frostbite/
 
 <div align="center">
 
-![Performance Chart](https://github.com/user-attachments/assets/performance-chart.png)
+![Performance Chart]
 
 | Metric | Value | Status |
 |--------|-------|--------|
