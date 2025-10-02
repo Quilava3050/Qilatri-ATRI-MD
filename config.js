@@ -21,17 +21,17 @@ global.namebot = 'Atri AI Assistant'
 global.wm = '© Atri-MD'
 global.stickpack = 'Sticker Dibuat oleh ATRI-MD\ngithub.com/ShirokamiRyzen\n\nATRI-MD ESM\n081399797379'
 global.stickauth = '© Atri AI Assistant'
-global.fotonya = 'https://files.catbox.moe/nxvt5v.jpg','https://files.catbox.moe/brn8j6.jpg','https://files.catbox.moe/1vxkej.jpg','https://files.catbox.moe/2eg319.jpg'
+global.fotonya = 'https://files.catbox.moe/nxvt5v.jpg'
 global.sgc = 'https://chat.whatsapp.com/CJXqrjMcxAwF9LNubbmHCN?mode=r_t'
 // Info Wait
 global.wait = 'harap tunggu sebentar, Atri sedang memproses'
 global.eror = '⚠️ Terjadi kesalahan, coba lagi nanti!'
 global.multiplier = 69 
 // Apikey
-global.lolkey = 'RyApi',
-global.neoxr = 'Kemii';
-global.lann = 'ItsMeMatt'
-global.btc = 'Quilava'
+global.lolkey = 'Daftar dan isi disini',
+global.neoxr = 'Daftar dan isi disini';
+global.lann = 'Daftar dan isi disini'
+global.btc = 'Daftar dan isi disini'
 
 // Catatan : Jika Mau Work Fiturnya
 // Masukan Apikeymu
