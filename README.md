@@ -226,9 +226,9 @@ frostbite/
 ## 🤝 Contributing
 
 <div align="center">
-
-![Contributors](https://contrib.rocks/image?repo=Quilava3050/ATRI-MD)
-
+  <a href="https://github.com/Quilava3050/Qilatri-ATRI-MD">
+    <img src="https://files.catbox.moe/oajfau.jpg" alt="Contribute" width="100" height="100" style="border-radius: 100%;" />
+  </a>
 </div>
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
