@@ -1,0 +1,14 @@
+{
+  "registeredUsers": [
+    "120363029215797600@g.us"
+  ],
+  "lastSent": {
+    "morning": null,
+    "evening": null
+  },
+  "settings": {
+    "timezone": "Asia/Jakarta",
+    "morningTime": "06:00",
+    "eveningTime": "22:00"
+  }
+}
