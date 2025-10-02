@@ -227,7 +227,10 @@ frostbite/
 
 <div align="center">
   <a href="https://github.com/Quilava3050/Qilatri-ATRI-MD">
-    <img src="https://files.catbox.moe/oajfau.jpg" alt="Contribute" width="100" height="100" style="border-radius: 100%;" />
+     <img src="https://files.catbox.moe/oajfau.jpg" alt="Contribute" width="150" height="150" style="border-radius: 50%; margin-right: 20px;" />
+  </a>
+  <a href="https://github.com/username/repo">
+    <img src="https://files.catbox.moe/bour0n.jpg" alt="Contribute" width="150" height="150" style="border-radius: 50%;" />
   </a>
 </div>
 
