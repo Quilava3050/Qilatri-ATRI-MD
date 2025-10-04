@@ -21,9 +21,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         
         let meme = `https://api.memegen.link/images/custom/${encodeURIComponent(atas ? atas : '')}/${encodeURIComponent(bawah ? bawah : '')}.png?background=${url}`
         
-        let stiker = await sticker(false, meme, global.packname, global.author)
+        let stiker = await sticker(false, meme, global.stickpack, global.stickauth)
         if (stiker) {
-            await conn.sendFile(m.chat, stiker, '', global.author, m, '', { asSticker: 1 })
+            await conn.sendFile(m.chat, stiker, '', global.stickauth, m, '', { asSticker: 1 })
             // react sukses ✅
             await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } })
         } else {
