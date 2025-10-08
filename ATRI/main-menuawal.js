@@ -87,7 +87,7 @@ ${commands || '│ (Belum ada perintah.)'}
 
         const caption = `${ucapan()} @${senderNum} 🌅
 
-Berikut daftar perintah di kategori *${category}*:
+Berikut daftar perintah dari kategori *menu ${category}*:
 
 ${menuContent}
 ${global.footerText}`

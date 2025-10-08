@@ -608,14 +608,14 @@ export async function participantsUpdate({ id, participants, action }) {
                         pp = await this.profilePictureUrl(user, 'image')
                     } catch (e) {
                     } finally {
-                        text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
-                     (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', await this.getName(user))
+                                text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
+                            (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', await this.getName(user.id || user))
                             
 let wel = await drawCard({
 theme: 'code',
     text: {
-      title: await this.getName(id),
-      text: await conn.getName(user),
+    title: await this.getName(id),
+    text: await conn.getName(user.id || user),
       subtitle: `Anggota ke-${groupMetadata.participants.length}`,
       color: `#DDDDDD`,
     },
@@ -632,9 +632,9 @@ theme: 'code',
   
 let lea = await drawCard({
     theme: 'code',
-    text: {
-      title: await this.getName(id),
-      text: await conn.getName(user),
+        text: {
+            title: await this.getName(id),
+            text: await conn.getName(user.id || user),
       subtitle: `Anggota ke-${groupMetadata.participants.length}`,
       color: `#DDDDDD`,
     },
@@ -649,7 +649,7 @@ let lea = await drawCard({
     rounded: true,
   })
   
-this.sendFile(id, action === 'add' ? wel : lea, 'pp.jpg', text, null, false, { mentions: [user] })
+this.sendFile(id, action === 'add' ? wel : lea, 'pp.jpg', text, null, false, { mentions: [user.id || user] })
                     }
                 }
             }
