@@ -593,73 +593,51 @@ export async function participantsUpdate({ id, participants, action }) {
         return
     if (global.db.data == null)
         await loadDatabase()
+
     let chat = global.db.data.chats[id] || {}
     let text = ''
+
     switch (action) {
-            case 'add':
-        case 'remove':
-            if (chat.welcome) {
-                    let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
-                for ( let user of participants ) {
-                    let pp = 'https://telegra.ph/file/f23f6570eb70b6748d678.png'
-                    let welc = "Selamat Datang";
-					let outss = "Selamat Tinggal";
-                    try {
-                        pp = await this.profilePictureUrl(user, 'image')
-                    } catch (e) {
-                    } finally {
-                                text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || 'unknow') :
-                            (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', await this.getName(user.id || user))
-                            
-let wel = await drawCard({
-theme: 'code',
-    text: {
-    title: await this.getName(id),
-    text: await conn.getName(user.id || user),
-      subtitle: `Anggota ke-${groupMetadata.participants.length}`,
-      color: `#DDDDDD`,
-    },
-    avatar: {
-      image: pp,
-      outlineWidth: 5,
-      outlineColor: new LinearGradient([0, '#33f'], [1, '#f33']),
-    },
-    background: 'https://p4.wallpaperbetter.com/wallpaper/659/538/534/anime-girls-black-rock-shooter-anime-wallpaper-preview.jpg',
-    blur: 1,
-    border: true,
-    rounded: true,
-  })
-  
-let lea = await drawCard({
-    theme: 'code',
-        text: {
-            title: await this.getName(id),
-            text: await conn.getName(user.id || user),
-      subtitle: `Anggota ke-${groupMetadata.participants.length}`,
-      color: `#DDDDDD`,
-    },
-    avatar: {
-      image: pp,
-      outlineWidth: 5,
-      outlineColor: new LinearGradient([0, '#33f'], [1, '#f33']),
-    },
-    background: 'https://p4.wallpaperbetter.com/wallpaper/659/538/534/anime-girls-black-rock-shooter-anime-wallpaper-preview.jpg',
-    blur: 1,
-    border: true,
-    rounded: true,
-  })
-  
-this.sendFile(id, action === 'add' ? wel : lea, 'pp.jpg', text, null, false, { mentions: [user.id || user] })
-                    }
-                }
+    case 'add':
+    case 'remove':
+        if (chat.welcome) {
+            let groupMetadata = await this.groupMetadata(id) || (conn.chats[id] || {}).metadata
+            for (let user of participants) {
+                let pp = 'https://telegra.ph/file/f23f6570eb70b6748d678.png'
+                try {
+                    pp = await this.profilePictureUrl(user, 'image')
+                } catch (e) { }
+
+                let tag = '@' + user.split('@')[0]
+
+                text = (action === 'add'
+                    ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!')
+                        .replace('@subject', await this.getName(id))
+                        .replace('@desc', groupMetadata.desc?.toString() || 'unknown')
+                    : (chat.sBye || this.bye || conn.bye || 'Bye, @user!')
+                ).replace(/@user/gi, tag)
+
+                // bikin kartu pakai canvafy
+                let card = await new canvafy.WelcomeLeave()
+                    .setAvatar(pp)
+                    .setBackground("image", "https://g.top4top.io/p_3568hw9bf1.jpg")
+                    .setTitle(action === 'add' ? "Welcome" : "Goodbye")
+                    .setDescription(action === 'add' ? "Selamat datang" : "Selamat Tinggal")
+                    .setBorder(action === 'add' ? "#2a2e35" : "#33f1ffff")
+                    .setAvatarBorder(action === 'add' ? "#2a2e35" : "#33f1ffff")
+                    .setOverlayOpacity(0.3)
+                    .build()
+
+                this.sendFile(id, card, 'welcome.png', text, null, false, { mentions: [user] })
             }
-            break  
+        }
+        break
         case 'promote':
             text = (chat.sPromote || this.spromote || conn.spromote || '@user ```is now Admin```')
         case 'demote':
             if (!text)
                 text = (chat.sDemote || this.sdemote || conn.sdemote || '@user ```is no longer Admin```')
-            text = text.replace('@user', '@' + participants[0].split('@')[0])
+            text = text.replace(/@user/gi, '@' + participants[0].split('@')[0])
             if (chat.detect)
                 this.sendMessage(id, { text, mentions: this.parseMention(text) })
             break
@@ -749,10 +727,69 @@ global.dfail = async (type, m, conn) => {
         admin: 'fitur ini hanya bisa digunakan oleh admin grup.',
         botAdmin: 'jadikan bot sebagai admin terlebih dahulu.',
         restrict: 'fitur ini dibatasi oleh owner dan belum diaktifkan.',
-        unreg: 'kamu belum terdaftar!\nketik: .daftar namamu\ncontoh: .daftar Atri'
+        unreg: 'kamu belum terdaftar!\nketik: $useprefix daftar namamu\ncontoh: $useprefix daftar Atri'
     };
 
-    if (messages[type]) return replyText(messages[type]);
+    if (messages[type]) {
+        // Replace placeholder $useprefix with actual prefix (detect best-fit prefix from context)
+        let msgText = messages[type]
+
+        const sanitizePrefix = (p) => {
+            if (!p && p !== 0) return null
+            if (typeof p === 'string') return p
+            if (p instanceof RegExp) {
+                try {
+                    // extract pattern between the slashes
+                    const s = p.toString() // e.g. '/^!/' or '/^\\./'
+                    const inside = s.slice(s.indexOf('/') + 1, s.lastIndexOf('/'))
+                    // remove leading ^ and trailing flags (already stripped)
+                    const trimmed = inside.replace(/^\^/, '')
+                    // unescape any escaped chars like \\.
+                    return trimmed.replace(/\\/g, '')
+                } catch (e) { return null }
+            }
+            if (Array.isArray(p)) {
+                for (const x of p) {
+                    const r = sanitizePrefix(x)
+                    if (r) return r
+                }
+            }
+            return null
+        }
+
+        const detectPrefixFromText = (text, candidates) => {
+            if (!text) return null
+            // sort candidates by length desc so longer prefixes match first
+            const unique = [...new Set(candidates.filter(Boolean))].sort((a, b) => b.length - a.length)
+            for (const c of unique) {
+                try {
+                    if (text.startsWith(c)) return c
+                } catch (e) { continue }
+            }
+            return null
+        }
+
+        try {
+            // build list of candidate prefixes
+            const candidates = []
+            const connPref = sanitizePrefix(conn && conn.prefix)
+            const globalPref = sanitizePrefix(global.prefix)
+            if (connPref) candidates.push(connPref)
+            if (globalPref) candidates.push(globalPref)
+            // common defaults
+            candidates.push('.', '!', '/', '#', '*')
+
+            // try to detect from the actual message text if available
+            let detected = null
+            if (m && m.text) detected = detectPrefixFromText(m.text, candidates)
+
+            // fallback to conn.prefix or global.prefix sanitized
+            if (!detected) detected = connPref || globalPref || '.'
+
+            if (typeof msgText === 'string') msgText = msgText.replace(/\$useprefix/g, detected)
+        } catch (e) {}
+        return replyText(msgText)
+    }
 };
 
 function ucapan() {
