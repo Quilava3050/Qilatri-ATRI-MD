@@ -1,147 +1,149 @@
-import db from '../lib/database.js'
 import { canLevelUp, xpRange } from '../lib/levelling.js'
-import uploadImage from '../lib/uploadImage.js'
-import { ranNumb, padLead } from '../lib/others.js'
 import canvafy from 'canvafy'
 
-let handler = async (m, { conn }) => {
-    let user = global.db.data.users[m.sender]
-    let name = user.nama || await conn.getName(m.sender)
+let handler = async (m, { conn, usedPrefix, command, args, participants, groupMetadata, isAdmin, isBotAdmin } = {}) => {
+    // Ensure database is loaded
+    if (global.db?.data == null) await global.loadDatabase()
 
+    // Ensure user record exists and has the minimal fields used here
+    let user = global.db.data.users?.[m.sender]
+    if (!user) {
+        global.db.data.users = global.db.data.users || {}
+        global.db.data.users[m.sender] = {
+            exp: 0,
+            level: 0,
+            role: 'Warrior ⚔️',
+            nama: await conn.getName(m.sender).catch(() => m.sender.split('@')[0]) || m.sender.split('@')[0],
+            limit: 100,
+            premium: false,
+            premiumTime: 0
+        }
+        user = global.db.data.users[m.sender]
+    }
+
+    let name = user.nama || await conn.getName(m.sender).catch(() => m.sender.split('@')[0])
+
+    // Cek apakah bisa level up
     if (!canLevelUp(user.level, user.exp, global.multiplier)) {
         let { min, xp, max } = xpRange(user.level, global.multiplier)
-        let txt = `Level *${user.level} (${user.exp - min}/${xp})*\nKurang *${max - user.exp}* Lagi!`
-        let meh = padLead(ranNumb(43), 3)
-        let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
+        let txt = `✨ Level kamu: *${user.level}*\n📊 EXP: *${user.exp - min}/${xp}*\nKurang *${max - user.exp} XP* lagi untuk naik level!`
+        let who = m.sender
         let pp = await conn.profilePictureUrl(who, 'image').catch(_ => './src/avatar_contact.png')
 
-        const image = await new canvafy.Rank({
-            font: { name: "Poppins", path: `assets/fonts/Poppins/Poppins-Regular.ttf` },
-            width: 1200,
-            height: 600,
-            minXp: user.exp - min,
-            maxXp: xp,
-            level: user.level,
-            avatar: {
-                size: 180,
-                circle: true,
-                offset: 10
-            },
-            rankName: user.role,
-            blur: 2,
-            autoColorRank: true
-        })
-            .setAvatar(pp)
-            .setBackground("image", "https://l.top4top.io/p_35472wlaw1.jpg")
-            .setUsername(name)
-            .setBorder("#36CFC3")
-            .setLevel(user.level)
-            .setOverlayOpacity(0.5)
-            .setCurrentXp(user.exp - min)
-            .setBarColor("#36CFC3")
-            .setRequiredXp(xp)
-            .build()
-
-        await conn.sendMessage(m.chat, { image: image, caption: txt }, { quoted: m })
-    } else {
-        let before = user.level * 1
-        while (canLevelUp(user.level, user.exp, global.multiplier)) user.level++
-
-        // Assign role sesuai level
-        if (user.level <= 2) user.role = 'Mizunoto ✩¹'
-        else if (user.level <= 4) user.role = 'Mizunoto ✩³'
-        else if (user.level <= 6) user.role = 'Mizunoto ✩⁴'
-        else if (user.level <= 8) user.role = 'Mizunoto ✩⁵'
-        else if (user.level <= 10) user.role = 'Mizunoe ✩¹'
-        else if (user.level <= 20) user.role = 'Mizunoe ✩²'
-        else if (user.level <= 30) user.role = 'Mizunoe ✩³'
-        else if (user.level <= 40) user.role = 'Mizunoe ✩⁴'
-        else if (user.level <= 50) user.role = 'Mizunoe ✩⁵'
-        else if (user.level <= 60) user.role = 'Kanoto ✩¹'
-        else if (user.level <= 70) user.role = 'Kanoto ✩²'
-        else if (user.level <= 80) user.role = 'Kanoto ✩³'
-        else if (user.level <= 90) user.role = 'Kanoto ✩⁴'
-        else if (user.level <= 100) user.role = 'Kanoto ✩⁵'
-        else if (user.level <= 110) user.role = 'Kanoe ✩¹'
-        else if (user.level <= 120) user.role = 'Kanoe ✩²'
-        else if (user.level <= 130) user.role = 'Kanoe ✩³'
-        else if (user.level <= 140) user.role = 'Kanoe ✩⁴'
-        else if (user.level <= 150) user.role = 'Kanoe ✩⁵'
-        else if (user.level <= 160) user.role = 'Michinoto ✩¹'
-        else if (user.level <= 170) user.role = 'Michinoto ✩²'
-        else if (user.level <= 180) user.role = 'Michinoto ✩³'
-        else if (user.level <= 190) user.role = 'Michinoto ✩⁴'
-        else if (user.level <= 200) user.role = 'Michinoto ✩⁵'
-        else if (user.level <= 210) user.role = 'Michinoe ✩¹'
-        else if (user.level <= 220) user.role = 'Michinoe ✩²'
-        else if (user.level <= 230) user.role = 'Michinoe ✩³'
-        else if (user.level <= 240) user.role = 'Michinoe ✩⁴'
-        else if (user.level <= 250) user.role = 'Michinoe ✩⁵'
-        else if (user.level <= 260) user.role = 'Tsuchinoto ✩¹'
-        else if (user.level <= 270) user.role = 'Tsuchinoto ✩²'
-        else if (user.level <= 280) user.role = 'Tsuchinoto ✩³'
-        else if (user.level <= 290) user.role = 'Tsuchinoto ✩⁴'
-        else if (user.level <= 300) user.role = 'Tsuchinoto ✩⁵'
-        else if (user.level <= 310) user.role = 'Tsuchinoe ✩¹'
-        else if (user.level <= 320) user.role = 'Tsuchinoe ✩²'
-        else if (user.level <= 330) user.role = 'Tsuchinoe ✩³'
-        else if (user.level <= 340) user.role = 'Tsuchinoe ✩⁴'
-        else if (user.level <= 350) user.role = 'Tsuchinoe ✩⁵'
-        else if (user.level <= 360) user.role = 'Hinoto ✩¹'
-        else if (user.level <= 370) user.role = 'Hinoto ✩²'
-        else if (user.level <= 380) user.role = 'Hinoto ✩³'
-        else if (user.level <= 390) user.role = 'Hinoto ✩⁴'
-        else if (user.level <= 400) user.role = 'Hinoto ✩⁵'
-        else if (user.level <= 410) user.role = 'Hinoe ✩¹'
-        else if (user.level <= 420) user.role = 'Hinoe ✩²'
-        else if (user.level <= 430) user.role = 'Hinoe ✩³'
-        else if (user.level <= 440) user.role = 'Hinoe ✩⁴'
-        else if (user.level <= 450) user.role = 'Hinoe ✩⁵'
-        else if (user.level <= 460) user.role = 'Kinoto ✩¹'
-        else if (user.level <= 470) user.role = 'Kinoto ✩²'
-        else if (user.level <= 480) user.role = 'Kinoto ✩³'
-        else if (user.level <= 490) user.role = 'Kinoto ✩⁴'
-        else if (user.level <= 500) user.role = 'Kinoto ✩⁵'
-        else if (user.level <= 510) user.role = 'Kinoe ✩¹'
-        else if (user.level <= 520) user.role = 'Kinoe ✩²'
-        else if (user.level <= 530) user.role = 'Kinoe ✩³'
-        else if (user.level <= 540) user.role = 'Kinoe ✩⁴'
-        else if (user.level <= 550) user.role = 'Kinoe ✩⁵'
-        else if (user.level <= 600) user.role = 'Pillar 숒'
-
-        if (before !== user.level) {
-            let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
-            let pp = await conn.profilePictureUrl(who, 'image').catch(_ => './src/avatar_contact.png')
-
-            const image = await new canvafy.LevelUp({
-                width: 1200,
-                height: 600,
-                avatar: {
-                    size: 180,
-                    circle: true,
-                    offset: 10
-                },
-                blur: 2,
-                autoColorRank: true
-            })
-                .setAvatar(pp)
-                .setBackground("image", "https://l.top4top.io/p_35472wlaw1.jpg")
-                .setUsername(name)
-                .setBorder("#36CFC3")
-                .setAvatarBorder("#36CFC3")
-                .setOverlayOpacity(0.5)
-                .build()
-
-            let txt = `Selamat ${name.replaceAll('\n', '')} Naik Level\n• Level Sebelumnya : ${before}\n• Level Baru : ${user.level}\n• Pada Jam : ${new Date().toLocaleString('id-ID')}\n*_Semakin Sering Berinteraksi Dengan Bot Semakin Tinggi Level Kamu_*`
-
-            await conn.sendMessage(m.chat, { image: image, caption: txt }, { quoted: m })
+        // Defensive canvafy usage: some canvafy versions have different method names
+        let image
+        try {
+            const rank = new canvafy.Rank()
+            const callIf = (obj, name, ...a) => { try { if (typeof obj[name] === 'function') obj[name](...a) } catch (e) { } }
+            callIf(rank, 'setAvatar', pp)
+            callIf(rank, 'setBackground', 'image', 'https://g.top4top.io/p_3568hw9bf1.jpg')
+            // username/title compatibility
+            if (typeof rank.setUsername === 'function') rank.setUsername(name)
+            else if (typeof rank.setTitle === 'function') rank.setTitle(name)
+            else if (typeof rank.setName === 'function') rank.setName(name)
+            callIf(rank, 'setCurrentXp', user.exp - min)
+            callIf(rank, 'setRequiredXp', xp)
+            callIf(rank, 'setLevel', user.level)
+            // rank name compatibility
+            if (typeof rank.setRankName === 'function') rank.setRankName(user.role || 'Warrior ⚔️')
+            else if (typeof rank.setRankTitle === 'function') rank.setRankTitle(user.role || 'Warrior ⚔️')
+            else if (typeof rank.setRank === 'function') rank.setRank(user.role || 'Warrior ⚔️')
+            callIf(rank, 'setBarColor', '#00C4FF')
+            callIf(rank, 'setOverlayOpacity', 0.45)
+            callIf(rank, 'setBorder', '#00C4FF')
+            if (typeof rank.build === 'function') image = await rank.build()
+        } catch (e) {
+            console.error('canvafy Rank build error:', e)
         }
+
+        if (!image) {
+            // try fallback using WelcomeLeave which is more stable across canvafy versions
+            try {
+                const alt = new canvafy.WelcomeLeave()
+                if (typeof alt.setAvatar === 'function') alt.setAvatar(pp)
+                if (typeof alt.setBackground === 'function') alt.setBackground('image', 'https://l.top4top.io/p_35472wlaw1.jpg')
+                if (typeof alt.setTitle === 'function') alt.setTitle(name)
+                if (typeof alt.setDescription === 'function') alt.setDescription(`Level ${user.level} (${user.exp - min}/${xp})\nKurang ${max - user.exp} XP lagi untuk naik level!`)
+                if (typeof alt.setBorder === 'function') alt.setBorder('#00C4FF')
+                if (typeof alt.setAvatarBorder === 'function') alt.setAvatarBorder('#00C4FF')
+                if (typeof alt.setOverlayOpacity === 'function') alt.setOverlayOpacity(0.45)
+                if (typeof alt.build === 'function') image = await alt.build()
+            } catch (e) {
+                console.error('canvafy fallback Rank->WelcomeLeave error:', e)
+            }
+        }
+
+        if (!image) return conn.sendMessage(m.chat, { text: txt }, { quoted: m })
+
+        return conn.sendMessage(m.chat, { image, caption: txt }, { quoted: m })
+    }
+
+    // Kalau bisa naik level
+    let before = user.level
+    while (canLevelUp(user.level, user.exp, global.multiplier)) user.level++
+
+    // Role rank Mobile Legends style
+    const getRank = lvl => {
+        if (lvl <= 10) return "Warrior ⚔️"
+        if (lvl <= 30) return "Elite 🛡️"
+        if (lvl <= 60) return "Master 💠"
+        if (lvl <= 100) return "Grandmaster 🔮"
+        if (lvl <= 150) return "Epic ⭐"
+        if (lvl <= 200) return "Legend 🔥"
+        if (lvl <= 250) return "Mythic ⚡"
+        if (lvl <= 999) return "Mythical Glory 👑"
+        return "Supreme Legend 🏆"
+    }
+
+    user.role = getRank(user.level)
+
+    if (before !== user.level) {
+        let who = m.sender
+        let pp = await conn.profilePictureUrl(who, 'image').catch(_ => './src/avatar_contact.png')
+
+        // Gambar untuk level up
+        let image
+        try {
+            const lvl = new canvafy.LevelUp()
+            const callIf = (obj, name, ...a) => { try { if (typeof obj[name] === 'function') obj[name](...a) } catch (e) { } }
+            callIf(lvl, 'setAvatar', pp)
+            callIf(lvl, 'setBackground', 'image', 'https://g.top4top.io/p_3568hw9bf1.jpg')
+            if (typeof lvl.setUsername === 'function') lvl.setUsername(name)
+            else if (typeof lvl.setTitle === 'function') lvl.setTitle(name)
+            else if (typeof lvl.setName === 'function') lvl.setName(name)
+            callIf(lvl, 'setAvatarBorder', '#00C4FF')
+            callIf(lvl, 'setOverlayOpacity', 0.5)
+            if (typeof lvl.build === 'function') image = await lvl.build()
+        } catch (e) {
+            console.error('canvafy LevelUp build error:', e)
+        }
+
+        // ✨ Tambahan teks agar terlihat keren dan jelas
+        let txt = `🎉 *LEVEL UP!*\n\n👤 Nama: *${name}*\n📈 Dari Level: *${before}* → *${user.level}*\n🏅 Rank Baru: *${user.role}*\n⏰ ${new Date().toLocaleString('id-ID')}\n\n> Semakin aktif kamu, semakin tinggi rank-mu! 🔥`
+
+        if (!image) {
+            try {
+                const alt = new canvafy.WelcomeLeave()
+                if (typeof alt.setAvatar === 'function') alt.setAvatar(pp)
+                if (typeof alt.setBackground === 'function') alt.setBackground('image', 'https://l.top4top.io/p_35472wlaw1.jpg')
+                if (typeof alt.setTitle === 'function') alt.setTitle('LEVEL UP!')
+                if (typeof alt.setDescription === 'function') alt.setDescription(`🎉 ${name}\nDari Level ${before} → ${user.level}`)
+                if (typeof alt.setBorder === 'function') alt.setBorder('#00C4FF')
+                if (typeof alt.setAvatarBorder === 'function') alt.setAvatarBorder('#00C4FF')
+                if (typeof alt.setOverlayOpacity === 'function') alt.setOverlayOpacity(0.5)
+                if (typeof alt.build === 'function') image = await alt.build()
+            } catch (e) {
+                console.error('canvafy fallback LevelUp->WelcomeLeave error:', e)
+            }
+        }
+
+        if (!image) return conn.sendMessage(m.chat, { text: txt }, { quoted: m })
+
+        await conn.sendMessage(m.chat, { image, caption: txt }, { quoted: m })
     }
 }
 
 handler.help = ['level']
 handler.tags = ['user']
-handler.command = /^(level(up)?)$/i
-handler.daftar = true
-
+handler.command = /^(level|levelup)$/i
 export default handler
