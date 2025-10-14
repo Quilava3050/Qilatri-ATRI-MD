@@ -623,8 +623,8 @@ export async function participantsUpdate({ id, participants, action }) {
                     .setBackground("image", "https://g.top4top.io/p_3568hw9bf1.jpg")
                     .setTitle(action === 'add' ? "Welcome" : "Goodbye")
                     .setDescription(action === 'add' ? "Selamat datang" : "Selamat Tinggal")
-                    .setBorder(action === 'add' ? "#2a2e35" : "#33f1ffff")
-                    .setAvatarBorder(action === 'add' ? "#2a2e35" : "#33f1ffff")
+                    .setBorder(action === 'add' ? "#2a2e35" : "#ffffff")
+                    .setAvatarBorder(action === 'add' ? "#2a2e35" : "#ffffff")
                     .setOverlayOpacity(0.3)
                     .build()
 

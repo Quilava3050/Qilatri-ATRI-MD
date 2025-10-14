@@ -48,9 +48,9 @@ let handler = async (m, { conn, usedPrefix, command, args, participants, groupMe
             if (typeof rank.setRankName === 'function') rank.setRankName(user.role || 'Warrior ⚔️')
             else if (typeof rank.setRankTitle === 'function') rank.setRankTitle(user.role || 'Warrior ⚔️')
             else if (typeof rank.setRank === 'function') rank.setRank(user.role || 'Warrior ⚔️')
-            callIf(rank, 'setBarColor', '#00C4FF')
+            callIf(rank, 'setBarColor', '#ffffffff')
             callIf(rank, 'setOverlayOpacity', 0.45)
-            callIf(rank, 'setBorder', '#00C4FF')
+            callIf(rank, 'setBorder', '#ffffffff')
             if (typeof rank.build === 'function') image = await rank.build()
         } catch (e) {
             console.error('canvafy Rank build error:', e)
@@ -111,7 +111,7 @@ let handler = async (m, { conn, usedPrefix, command, args, participants, groupMe
             if (typeof lvl.setUsername === 'function') lvl.setUsername(name)
             else if (typeof lvl.setTitle === 'function') lvl.setTitle(name)
             else if (typeof lvl.setName === 'function') lvl.setName(name)
-            callIf(lvl, 'setAvatarBorder', '#00C4FF')
+            callIf(lvl, 'setAvatarBorder', '#ffffffff')
             callIf(lvl, 'setOverlayOpacity', 0.5)
             if (typeof lvl.build === 'function') image = await lvl.build()
         } catch (e) {
@@ -128,8 +128,8 @@ let handler = async (m, { conn, usedPrefix, command, args, participants, groupMe
                 if (typeof alt.setBackground === 'function') alt.setBackground('image', 'https://l.top4top.io/p_35472wlaw1.jpg')
                 if (typeof alt.setTitle === 'function') alt.setTitle('LEVEL UP!')
                 if (typeof alt.setDescription === 'function') alt.setDescription(`🎉 ${name}\nDari Level ${before} → ${user.level}`)
-                if (typeof alt.setBorder === 'function') alt.setBorder('#00C4FF')
-                if (typeof alt.setAvatarBorder === 'function') alt.setAvatarBorder('#00C4FF')
+                if (typeof alt.setBorder === 'function') alt.setBorder('#ffffffff')
+                if (typeof alt.setAvatarBorder === 'function') alt.setAvatarBorder('#ffffffff')
                 if (typeof alt.setOverlayOpacity === 'function') alt.setOverlayOpacity(0.5)
                 if (typeof alt.build === 'function') image = await alt.build()
             } catch (e) {
