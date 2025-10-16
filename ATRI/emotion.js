@@ -21,7 +21,7 @@ const handler = async (m, { conn }) => {
 
 handler.help = ['bot']
 handler.tags = ['main']
-handler.customPrefix = /^bot$/i  // cuma respon kalau pesannya persis "bot"
+handler.customPrefix = /^p$/i  // cuma respon kalau pesannya persis "bot"
 handler.command = new RegExp     // biar jalan hanya dari customPrefix
 
 export default handler
