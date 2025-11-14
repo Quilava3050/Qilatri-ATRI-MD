@@ -1,69 +1,61 @@
-import { Client } from "@gradio/client";
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
+import FormData from 'form-data';
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-  let q = m.quoted ? m.quoted : m;
-  let mime = (q.msg || q).mimetype || "";
-
-  if (!mime || !/image\/(jpe?g|png)/.test(mime)) {
-    return m.reply(
-      `📸 Balas gambar dengan perintah:\n*${usedPrefix + command} <prompt>*\nContoh: ${usedPrefix + command} ubah jadi anime`
-    );
-  }
-
-  if (!text) text = "ubah jadi anime"; // default prompt
-
+const handler = async (m, { conn, usedPrefix, command }) => {
   try {
-    // react ⏳
-    await conn.sendMessage(m.chat, { react: { text: "⏳", key: m.key } });
+    const q = m.quoted ? m.quoted : m;
+    const mime = (q.msg || q).mimetype || q.mediaType || '';
 
-    // download gambar
-    let imgBuffer = await q.download();
-    if (!imgBuffer) return m.reply("❌ Gagal download gambar.");
+    if (/^image/.test(mime) && !/webp/.test(mime)) {
+      m.reply('⏳ Sedang memproses gambar, harap tunggu...');
 
-    // connect ke Gradio
-    const client = await Client.connect("Selfit/ImageEditPro");
+      const imgBuffer = await q.download();
+      if (!imgBuffer) throw '❌ Tidak dapat mengunduh gambar.';
 
-    // ambil semua input model
-    const inputs = client.inputs || [];
-    let payload = {};
+      const prompt = m.text.split(' ').slice(1).join(' ').trim();
+      if (!prompt) return m.reply('❌ Mohon masukkan permintaan pengeditan, contoh: *ubah warna hijab menjadi biru*');
 
-    for (let input of inputs) {
-      if (input.type === "file" && !payload[input.name]) payload[input.name] = imgBuffer;
-      if (input.type === "str" && !payload[input.name]) payload[input.name] = text;
-    }
+      const form = new FormData();
+      form.append('image', imgBuffer, { filename: 'image.jpg', contentType: mime || 'image/jpeg' });
+      form.append('param', prompt);
 
-    // predict
-    const result = await client.predict("/global_edit", payload);
+      const apiRes = await fetch('https://api.elrayyxml.web.id/api/ai/nanobanana', {
+        method: 'POST',
+        body: form,
+        headers: form.getHeaders()
+      });
 
-    let output = result.data?.[0];
-    if (!output) throw "❌ Gagal edit gambar.";
+      if (!apiRes.ok) {
+        const errText = await apiRes.text().catch(() => '');
+        throw `❌ Gagal memproses gambar. (${apiRes.status}) ${errText || ''}`.trim();
+      }
 
-    // convert hasil ke Buffer
-    let buffer;
-    if (typeof output === "string" && output.startsWith("data:image")) {
-      let base64Data = output.split(",")[1];
-      buffer = Buffer.from(base64Data, "base64");
+      const ct = apiRes.headers.get('content-type') || '';
+      if (ct.startsWith('image/')) {
+        const outBuffer = await apiRes.buffer();
+        await conn.sendFile(m.chat, outBuffer, 'edited.jpg', `✅ Gambar berhasil diedit: ${prompt}`, m);
+      } else {
+        const text = await apiRes.text();
+        const url = (text.match(/https?:\/\/\S+/) || [])[0];
+        if (url) {
+          await conn.sendFile(m.chat, url, null, `✅ Gambar berhasil diedit: ${prompt}`, m);
+        } else {
+          await m.reply('✅ Permintaan diproses, namun respons bukan gambar maupun URL:\n```\n' + text.slice(0, 2000) + '\n```');
+        }
+      }
     } else {
-      let res = await fetch(output);
-      buffer = Buffer.from(await res.arrayBuffer());
+      m.reply(`Kirim gambar dengan caption *${usedPrefix + command}* atau tag gambar yang sudah dikirim.`);
     }
-
-    // kirim hasil ke chat
-    await conn.sendFile(m.chat, buffer, "edited.png", `✅ Hasil edit: ${text}`, m);
-
-    // react ✅
-    await conn.sendMessage(m.chat, { react: { text: "✅", key: m.key } });
-  } catch (err) {
-    console.error(err);
-    await conn.sendMessage(m.chat, { react: { text: "❌", key: m.key } });
-    m.reply("❌ Terjadi kesalahan saat edit gambar.");
+  } catch (e) {
+    console.error(e);
+    m.reply(`❌ Terjadi kesalahan saat memproses gambar. Silakan coba lagi.\n${e?.message || e}`);
   }
 };
 
-handler.help = ["editpict <prompt>"];
-handler.tags = ["tools", "ai"];
-handler.command = /^editpict$/i;
-handler.limit = true;
+handler.help = ['editpict'];
+handler.tags = ['ai'];
+handler.command = ['editpict'];
+handler.premium = true;
+handler.limit = 3;
 
 export default handler;

@@ -1,14 +1,45 @@
 import fs from 'fs'
 
-// Konfigurasi media menu & footer global
-global.fotonya = 'https://files.catbox.moe/nxvt5v.jpg'
-global.videonya = 'https://files.catbox.moe/5b6fsx.mp4'
-global.useVideoMenu = true // true = video, false = foto
+// Konfigurasi default
+global.menuThumbs = {
+  vid1: 'https://idweb.tech/api/preview.php?file=b24kbikh.mp4',
+  vid2: 'https://idweb.tech/api/preview.php?file=yddt81n1.mp4',
+  img1: 'https://files.catbox.moe/nxvt5v.jpg',
+    img2:
+'https://idweb.tech/api/preview.php?file=nomjf4wk.jpg',
+    img3:
+  'https://idweb.tech/api/preview.php?file=jza22gmf.jpg'
+}
+global.selectedThumb = 'vid2' // default
 global.footerText = `⚡ ${global.namebot} • Powered by ${global.ownerName || 'Natsuki Minamo'} ⚡`
 
-let handler = async (m, { conn, usedPrefix: _p, args }) => {
+let handler = async (m, { conn, usedPrefix: _p, args, command }) => {
   try {
-       await conn.sendMessage(m.chat, { react: { text: '🍃', key: m.key } })
+    await conn.sendMessage(m.chat, { react: { text: '🍃', key: m.key } })
+
+    // ✨ FITUR BARU: ganti thumbnail menu
+    if (args[0] === 'set' && args[1]) {
+      const choice = args[1].toLowerCase()
+      if (choice in global.menuThumbs) {
+        global.selectedThumb = choice
+        global.useVideoMenu = choice.startsWith('vid')
+        if (global.useVideoMenu) {
+          global.videonya = global.menuThumbs[choice]
+        } else {
+          global.fotonya = global.menuThumbs[choice]
+        }
+        return conn.reply(m.chat, `✅ Thumbnail menu diganti ke *${choice}*`, m)
+      } else {
+        return conn.reply(
+          m.chat,
+          `⚠️ Pilihan tidak valid.\nGunakan salah satu:\n${Object.keys(global.menuThumbs)
+            .map(v => `- ${v}`)
+            .join('\n')}`,
+          m
+        )
+      }
+    }
+
     // Data user
     const user = global.db?.data?.users?.[m.sender] || {}
     const nama = user.nama || m.pushName || 'PENGGUNA'
@@ -26,22 +57,22 @@ let handler = async (m, { conn, usedPrefix: _p, args }) => {
       ? global.owner.some(([id]) => String(id) === senderNum)
       : false
     const isPremium = user.premium && Number(user.premiumTime) > Date.now()
-    const status = isOwner ? '👑 Owner' : isPremium ? '💎 Premium' : '🧍 Free User'
-    const sisaPremium = isOwner ? '♾️ Permanent' : (isPremium ? getRemainingTime(user.premiumTime - Date.now()) : '-')
+    const status = isOwner ? 'Owner👑' : isPremium ? 'Premium💎' : 'Free User'
+    const sisaPremium = isOwner ? 'Permanent' : isPremium ? getRemainingTime(user.premiumTime - Date.now()) : '-'
 
     const { tanggal, waktu } = waktuJakarta()
 
     // ────🧭 Info User ─────────────────────────────
     const menuUser = `
 ╭─═⪩ *PENGGUNA* ⪨═─╮
-│ 🌸 Nama     : ${nama}
-│ 🧩 Status   : ${status}
-│ ⚡ Exp      : ${exp}
-│ 💰 Koin     : ${koin}
-│ 🎟️ Limit    : ${limit}
-│ 💎 Premium  : ${sisaPremium}
-│ 🗓️ Tanggal  : ${tanggal}
-│ 🕐 Waktu    : ${waktu} WIB
+│  Nama     : ${nama}
+│  Status   : ${status}
+│  Exp      : ${exp}
+│  Koin     : ${koin}
+│  Limit    : ${limit}
+│  Premium  : ${sisaPremium}
+│  Tanggal  : ${tanggal}
+│  Waktu    : ${waktu} WIB
 ╰────────────────────╯
 `.trim()
 
@@ -66,18 +97,23 @@ let handler = async (m, { conn, usedPrefix: _p, args }) => {
     })
 
     // ────📂 Jika user pilih kategori ─────────────────────────────
-    if (args[0]) {
+    if (args[0] && args[0] !== 'set') {
       const category = args[0].toLowerCase()
       if (category in categories) {
         const commands = help
           .filter(menu => menu.tags.map(t => String(t).toLowerCase()).includes(category))
-          .map(menu => menu.help.map(cmd => {
-            let marks = ''
-            if (menu.limit) marks += 'Ⓛ '
-            if (menu.premium) marks += 'Ⓟ '
-            if (menu.owner || menu.rowner) marks += 'Ⓞ '
-            return `│ ➤ ${menu.prefix ? cmd : `${_p}${cmd}`} ${marks}`.trim()
-          }).join('\n')).join('\n')
+          .map(menu =>
+            menu.help
+              .map(cmd => {
+                let marks = ''
+                if (menu.limit) marks += 'Ⓛ '
+                if (menu.premium) marks += 'Ⓟ '
+                if (menu.owner || menu.rowner) marks += 'Ⓞ '
+                return `│ ➤ ${menu.prefix ? cmd : `${_p}${cmd}`} ${marks}`.trim()
+              })
+              .join('\n')
+          )
+          .join('\n')
 
         const menuContent = `
 ╭─═⪩ *MENU ${category.toUpperCase()}* ⪨═─╮
@@ -92,21 +128,15 @@ Berikut daftar perintah dari kategori *menu ${category}*:
 ${menuContent}
 ${global.footerText}`
 
-        if (global.useVideoMenu) {
-          conn.sendMessage(m.chat, {
-            video: { url: global.videonya },
-            gifPlayback: true,
-            caption,
-            mentions: [m.sender]
-          }, { quoted: m })
-        } else {
-          conn.sendMessage(m.chat, {
-            image: { url: global.fotonya },
-            caption,
-            mentions: [m.sender]
-          }, { quoted: m })
-        }
-        return
+        const menuMedia = global.useVideoMenu
+          ? { video: { url: global.menuThumbs[global.selectedThumb] }, gifPlayback: true }
+          : { image: { url: global.menuThumbs[global.selectedThumb] } }
+
+        return conn.sendMessage(m.chat, {
+          ...menuMedia,
+          caption,
+          mentions: [m.sender]
+        }, { quoted: m })
       } else {
         return conn.reply(m.chat, `⚠️ Kategori *${args[0]}* tidak ditemukan.\nKetik *${_p}menu* untuk melihat semua kategori.`, m)
       }
@@ -118,17 +148,16 @@ ${global.footerText}`
 │ Halo ${nama}!
 │ ${ucapan()} 
 │ semoga harimu menyenangkan 🌸
-│ Aku adalah *asisten AI WhatsApp*, siap
-│ membantumu menjalankan✨
+│ Aku *ATRI AI ASSISTANT WhatsApp*, siap
+│ membantumu✨
 ╰────────────────────╯
 
 ${menuUser}
 
-📚 *Navigasi Menu*
+❄ *Navigasi Menu*
 Pilih kategori di bawah ini untuk melihat fitur:
 `.trim()
 
-    // ────📑 List Kategori ─────────────────────────────
     const rows = [
       { title: '👑 Owner', description: 'Hubungi pemilik bot', id: `${_p}owner` },
       ...Object.keys(categories).sort().map(key => ({
@@ -141,8 +170,8 @@ Pilih kategori di bawah ini untuk melihat fitur:
     const sections = [{ title: '📖 Daftar Kategori', rows }]
 
     const menuMedia = global.useVideoMenu
-      ? { video: { url: global.videonya }, gifPlayback: true }
-      : { image: { url: global.fotonya } }
+      ? { video: { url: global.menuThumbs[global.selectedThumb] }, gifPlayback: true }
+      : { image: { url: global.menuThumbs[global.selectedThumb] } }
 
     conn.sendMessage(m.chat, {
       ...menuMedia,

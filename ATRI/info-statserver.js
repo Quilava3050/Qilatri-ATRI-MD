@@ -60,7 +60,7 @@ ${disk}
       externalAdReply: {
         title: "📡 Informasi Server",
         body: `CPU: ${cpuModel} (${cpuCores} cores) • RAM: ${usedMem}/${totalMem} GB`,
-        thumbnailUrl: "https://i.ibb.co/n1d1Bjq/server-status.jpg", // thumbnail custom
+        thumbnailUrl: "https://k.top4top.io/p_3562ilf951.jpg", // thumbnail custom
         sourceUrl: "https://quickchart.io", // bisa diarahkan ke link panel/server kamu
         mediaType: 1,
         renderLargerThumbnail: true

@@ -280,15 +280,28 @@ const isOwner = isROwner || m.fromMe
 const isMods = isOwner || global.mods.map(n => n.replace(/\D/g, '') + detectwhat).includes(m.sender)
 const isPrems = isOwner || global.prems.map(n => n.replace(/\D/g, '') + detectwhat).includes(m.sender) || _user?.premium
 
-if (opts['queque'] && m.text && !(isMods || isPrems)) {
-    let queque = this.msgqueque, time = 1000 * 5
-    const previousID = queque[queque.length - 1]
-    queque.push(m.id || m.key.id)
-    setInterval(async function () {
-        if (queque.indexOf(previousID) === -1) clearInterval(this)
-        await delay(time)
-    }, time)
+if (opts['queue'] && m.text && !(isMods || isPrems)) {
+  const queue = this.msgQueue || [];
+  const time = 5000; // 5 detik
+  this.msgQueue = queue;
+
+  // Tambahkan message ke queue
+  queue.push(m.id || m.key.id);
+
+  // Tunggu sampai giliran pesan ini (jangan proses langsung)
+  while (queue[0] !== (m.id || m.key.id)) {
+    await delay(1000); // periksa tiap detik
+  }
+
+  // Proses pesanmu di sini (lanjut ke handler utama)
+  try {
+    // Eksekusi perintah utama bot...
+  } finally {
+    // Setelah selesai, keluarkan dari queue
+    queue.shift();
+  }
 }
+
 
 m.exp += Math.ceil(Math.random() * 10)
 

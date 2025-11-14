@@ -1,34 +1,18 @@
-import fetch from "node-fetch"
-
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply('Example :\n.iqc Biji ayam')
+ if (!text) return m.reply('Example :\n.iqc Biji ayam')
 
-  try {
-    await conn.sendMessage(m.chat, {
-      react: { text: "⏳", key: m.key }
-    })
+ let time = new Intl.DateTimeFormat('id-ID', {
+ timeZone: 'Asia/Jakarta',
+ hour: '2-digit',
+ minute: '2-digit',
+ hour12: false
+ }).format(new Date())
 
-    let api = `https://api.botcahx.eu.org/api/maker/iqc?apikey=Quilava&text=${encodeURIComponent(text.trim())}`
-    let res = await fetch(api)
-    if (!res.ok) throw await res.text()
-    let json = await res.json()
-    if (!json.status) throw json
-
-    await conn.sendMessage(m.chat, {
-      image: { url: json.result },
-      caption: `✅ Hasil untuk: ${text}`
-    }, { quoted: m })
-
-    await conn.sendMessage(m.chat, {
-      react: { text: "✅", key: m.key }
-    })
-  } catch (e) {
-    console.error(e)
-    m.reply("❌ Terjadi kesalahan, coba lagi nanti.")
-    await conn.sendMessage(m.chat, {
-      react: { text: "❌", key: m.key }
-    })
-  }
+ await conn.sendMessage(m.chat, {
+ image: {
+ url: `https://brat.siputzx.my.id/iphone-quoted?time=${encodeURIComponent(time)}&batteryPercentage=${Math.floor(Math.random() * 100) + 1}&carrierName=INDOSAT&messageText=${encodeURIComponent(text.trim())}&emojiStyle=apple`
+ }
+ }, { quoted: m })
 }
 
 handler.help = ['iqc <teks>']

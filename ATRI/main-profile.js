@@ -39,7 +39,7 @@ let handler = async (m, { conn }) => {
 
     const image = await new canvafy.WelcomeLeave()
       .setAvatar(pp)
-      .setBackground("image", "https://f.top4top.io/p_3547l4mpt1.jpg")
+      .setBackground("image", "https://h.top4top.io/p_3572fjd6d1.jpg")
       .setTitle(username)
       .setDescription(`${PhoneNumber('+' + who.replace('@s.whatsapp.net', '')).getNumber('international')}`)
       .setBorder("#000000")

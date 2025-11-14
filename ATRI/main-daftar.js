@@ -10,7 +10,7 @@ let handler = async function (m, { text, usedPrefix }) {
   }
 
   if (!Reg.test(text)) {
-    throw `📌 Format salah!\nGunakan: *${usedPrefix}daftar Nama*\nContoh: *${usedPrefix}daftar Matt*`
+    throw `📌 Format salah!\nGunakan: *${usedPrefix}daftar Nama*\nContoh: *${usedPrefix}daftar atri*`
   }
 
   let [_, nama] = text.match(Reg)

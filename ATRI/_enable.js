@@ -1,354 +1,118 @@
 let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isROwner }) => {
-
   let isEnable = /true|enable|(turn)?on|1/i.test(command)
   let chat = global.db.data.chats[m.chat]
   let user = global.db.data.users[m.sender]
   let bot = global.db.data.settings[conn.user.jid] || {}
   let type = (args[0] || '').toLowerCase()
-  let isAll = false, isUser = false
-  switch (type) {
-    case 'welcome':
-      if (!m.isGroup) {
-        if (!isOwner) {
-          global.dfail('group', m, conn)
-          throw false
-        }
-      } else if (!isAdmin) {
-        global.dfail('admin', m, conn)
-        throw false
-      }
-      chat.welcome = isEnable
-      break
-     case 'detect':
-       if (!m.isGroup) {
-         if (!isOwner) {
-           global.dfail('group', m, conn)
-           throw false
-         }
-       } else if (!isAdmin) {
-         global.dfail('admin', m, conn)
-         throw false
-       }
-       chat.detect = isEnable
-       break
-    case 'delete':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.delete = isEnable
-      break
-    case 'clear':
-      isAll = true
-      if (!isOwner) {
-        global.dfail('owner', m, conn)
-        throw false
-      }
-      bot.clear = isEnable
-      break
-          case 'viewonce':
-    case 'antiviewonce':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.viewonce = isEnable
-      break
-    case 'desc':
-      if (!m.isGroup) {
-        if (!isOwner) {
-          global.dfail('group', m, conn)
-          throw false
-        }
-      } else if (!(isAdmin || isOwner)) {
-        global.dfail('admin', m, conn)
-        throw false
-      }
-      chat.descUpdate = isEnable
-      break
-    case 'antidelete':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiDelete = !isEnable
-      break
-     case 'autodelvn':
-       if (m.isGroup) {
-         if (!(isAdmin || isOwner)) {
-           global.dfail('admin', m, conn)
-           throw false
-         }
-       }
-       chat.autodelvn = isEnable
-       break
-     case 'document':
-       chat.useDocument = isEnable
-       break
-    case 'public':
-    isAll = true
-    if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-    }
-    global.opts['self'] = !isEnable
-    break
-      case 'bcjoin':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.bcjoin = isEnable
-      break
-      case 'chatbot':
-  if (m.isGroup) {
-    if (!(isAdmin || isOwner)) {
+
+  let isAll = false
+  let isUser = false
+
+  // --- Helper: Cek hak akses ---
+  const needAdmin = () => {
+    if (m.isGroup && !(isAdmin || isOwner)) {
       global.dfail('admin', m, conn)
       throw false
     }
   }
-  chat.chatbot = isEnable
-  break
-  case 'game':
-    if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-            global.dfail('admin', m, conn)
-            throw false
-        }
-    }
-    chat.gameMode = isEnable
-    break
-    case 'antilink':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiLink = isEnable
-      break
-      case 'antifoto':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiFoto = isEnable
-      break
-      case 'antivideo':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiVideo = isEnable
-      break
-      case 'antiaudio':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiAudio = isEnable
-      break
-      case 'antisticker':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiSticker = isEnable
-      break
-      case 'autopresence':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.autoPesence = isEnable
-      break
-      case 'autoreply':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.autoReply = isEnable
-      break
-      case 'autosticker':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.autoSticker = isEnable
-      break
-      case 'antisticker':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) {
-          global.dfail('admin', m, conn)
-          throw false
-        }
-      }
-      chat.antiSticker = isEnable
-      break
-      case 'autojoin':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.autoJoin = isEnable
-      break
-       case 'autobackup':
-            isAll = true
-            if (!isOwner) {
-                global.dfail('owner', m, conn)
-                throw false
-            }
-            bot.backup = isEnable
-            break     
-      case 'autoupnews':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.updateAnimeNews = isEnable
-      break
-      case 'autoupnime':
-        if (!isROwner) {
-          global.dfail('rowner', m, conn)
-          throw false
-        }
-      chat.updateAnime = isEnable
-      break
-       case 'antispam':
-       if (m.isGroup) {
-         if (!(isAdmin || isOwner)) {
-           global.dfail('admin', m, conn)
-           throw false
-         }
-       }
-       chat.antiSpam = isEnable
-       break
-     case 'autolevelup':
-       isUser = true
-       user.autolevelup = isEnable
-       break
-     case 'mycontact':
-     case 'mycontacts':
-     case 'whitelistcontact':
-     case 'whitelistcontacts':
-     case 'whitelistmycontact':
-     case 'whitelistmycontacts':
-       if (!isOwner) {
-         global.dfail('owner', m, conn)
-         throw false
-       }
-       conn.callWhitelistMode = isEnable
-       break
-    case 'restrict':
-      isAll = true
-      if (!isOwner) {
-        global.dfail('owner', m, conn)
-        throw false
-      }
-      bot.restrict = isEnable
-      break
-    case 'nyimak':
-      isAll = true
-      if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-      }
-      global.opts['nyimak'] = isEnable
-      break
-    case 'autoread':
-      isAll = true
-      if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-      }
-      global.opts['autoread'] = isEnable
-      break
-    case 'pconly':
-    case 'privateonly':
-      isAll = true
-      if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-      }
-      global.opts['pconly'] = isEnable
-      break
-    case 'gconly':
-    case 'grouponly':
-      isAll = true
-      if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-      }
-      global.opts['gconly'] = isEnable
-      break
-    case 'getmsg':
-      if (m.isGroup) {
-        if (!(isAdmin || isOwner)) return dfail('admin', m, conn)
-      }
-      chat.getmsg = isEnable
-      break
-    case 'swonly':
-    case 'statusonly':
-      isAll = true
-      if (!isROwner) {
-        global.dfail('rowner', m, conn)
-        throw false
-      }
-      global.opts['swonly'] = isEnable
-      break
-    default:
-     if (!/[01]/.test(command)) return m.reply(`List Option :
-     
-- Welcome
-- Delete
-- Publik 
-- Antilink 
-- AntiDelete
-- AntiAudio 
-- AntiSpam 
-- AntiSticker 
-- AntiVideo
-- AntiFoto  
-- Autobackup
-- AutoSticker
-- AutoLevelup
-- Chatbot
-- Detect 
-- Restrict 
-- PcOnly 
-- GcOnly 
-- Getmsg
-- Game
-- Autoread
-
-
-Contoh Aktif: .on welcome
-Untuk Mengaktifkan
-
-Contoh Nonaktif: .off welcome
-Untuk Menonaktifkan
-`.trim())
+  const needOwner = () => {
+    if (!isOwner) {
+      global.dfail('owner', m, conn)
       throw false
+    }
   }
- conn.reply(m.chat, `Sukses Meng${isEnable ? 'aktifkan' : 'nonaktifkan'} ${type}\nUntuk: ${isAll ? 'Bot Ini' : isUser ? '' : 'Group Ini'}
-`, m)
+  const needROwner = () => {
+    if (!isROwner) {
+      global.dfail('rowner', m, conn)
+      throw false
+    }
+  }
+
+  switch (type) {
+    case 'welcome': needAdmin(); chat.welcome = isEnable; break
+    case 'detect': needAdmin(); chat.detect = isEnable; break
+    case 'delete': needAdmin(); chat.delete = isEnable; break
+    case 'viewonce':
+    case 'antiviewonce': needAdmin(); chat.viewonce = isEnable; break
+    case 'desc': needAdmin(); chat.descUpdate = isEnable; break
+    case 'antidelete': needAdmin(); chat.antiDelete = !isEnable; break
+    case 'autodelvn': needAdmin(); chat.autodelvn = isEnable; break
+    case 'document': chat.useDocument = isEnable; break
+
+    // BOT-WIDE SETTINGS (Owner Only)
+    case 'clear': isAll = true; needOwner(); bot.clear = isEnable; break
+    case 'public': isAll = true; needROwner(); global.opts.self = !isEnable; break
+    case 'restrict': isAll = true; needOwner(); bot.restrict = isEnable; break
+    case 'autobackup': isAll = true; needOwner(); bot.backup = isEnable; break
+    case 'autoread': isAll = true; needROwner(); global.opts.autoread = isEnable; break
+    case 'nyimak': isAll = true; needROwner(); global.opts.nyimak = isEnable; break
+    case 'pconly': isAll = true; needROwner(); global.opts.pconly = isEnable; break
+    case 'gconly': isAll = true; needROwner(); global.opts.gconly = isEnable; break
+    case 'swonly': isAll = true; needROwner(); global.opts.swonly = isEnable; break
+
+    // ANTI & FILTER
+    case 'antilink': needAdmin(); chat.antiLink = isEnable; break
+    case 'antifoto': needAdmin(); chat.antiFoto = isEnable; break
+    case 'antivideo': needAdmin(); chat.antiVideo = isEnable; break
+    case 'antiaudio': needAdmin(); chat.antiAudio = isEnable; break
+    case 'antisticker': needAdmin(); chat.antiSticker = isEnable; break
+    case 'antispam': needAdmin(); chat.antiSpam = isEnable; break
+
+    // AUTO SYSTEMS
+    case 'autopresence': needROwner(); chat.autoPesence = isEnable; break
+    case 'autoreply': needROwner(); chat.autoReply = isEnable; break
+    case 'autosticker': needROwner(); chat.autoSticker = isEnable; break
+    case 'autojoin': needROwner(); chat.autoJoin = isEnable; break
+    case 'autoupnews': needROwner(); chat.updateAnimeNews = isEnable; break
+    case 'autoupnime': needROwner(); chat.updateAnime = isEnable; break
+
+    // GROUP FEATURES
+    case 'chatbot': needAdmin(); chat.chatbot = isEnable; break
+    case 'bcjoin': needAdmin(); chat.bcjoin = isEnable; break
+    case 'game': needAdmin(); chat.gameMode = isEnable; break
+    case 'getmsg': needAdmin(); chat.getmsg = isEnable; break
+
+    // USER-LEVEL
+    case 'autolevelup': isUser = true; user.autolevelup = isEnable; break
+
+    // WHITELIST CONTACT
+    case 'mycontact':
+    case 'mycontacts':
+    case 'whitelistcontact':
+    case 'whitelistcontacts':
+    case 'whitelistmycontact':
+    case 'whitelistmycontacts':
+      needOwner(); conn.callWhitelistMode = isEnable; break
+
+    default:
+      return m.reply(`
+╭───〔 *List Opsi ON/OFF* 〕
+│ 🟢 *Group Features*
+│ welcome, delete, detect, chatbot, game
+│ 
+│ 🔒 *Anti & Filter*
+│ antilink, antifoto, antivideo, antiaudio, antisticker, antispam, antidelete
+│ 
+│ ⚙️ *Auto System*
+│ autolevelup, autosticker, autoreply, autopresence, autobackup
+│ 
+│ 🌐 *Bot Owner Only*
+│ public, restrict, clear, autoread, nyimak, pconly, gconly, swonly
+╰───────────────────────
+
+Contoh Aktif:  *.on welcome*
+Contoh Nonaktif:  *.off welcome*
+`.trim())
+  }
+
+  conn.reply(
+    m.chat,
+    `✅ Sukses *${isEnable ? 'Mengaktifkan' : 'Menonaktifkan'}* fitur *${type.toUpperCase()}*
+📍 Untuk: ${isAll ? 'Semua Bot' : isUser ? 'User Ini' : 'Group Ini'}`,
+    m
+  )
 }
+
 handler.help = ['on', 'off']
 handler.tags = ['group', 'owner']
 handler.command = /^((en|dis)able|(tru|fals)e|(turn)?o(n|ff)|[01])$/i

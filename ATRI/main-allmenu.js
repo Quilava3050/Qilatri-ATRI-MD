@@ -20,7 +20,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     let isOwner = Array.isArray(global.owner) ? global.owner.some(([id]) => m.sender.includes(id)) : false
     let isPremium = userData.premium === true && Number(userData.premiumTime || 0) > Date.now()
-    let status = isOwner ? '👑 Owner' : isPremium ? '💎 Premium' : '👤 Free User'
+    let status = isOwner ? 'Owner👑' : isPremium ? 'Premium💎' : 'Free User'
     let sisaPremium = isPremium ? getRemainingTime(userData.premiumTime - Date.now()) : '-'
 
     let now = new Date()
@@ -43,14 +43,14 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     //  INFO PANEL BOT
     // ================================
     let infoBot = `
-┏━━━💫 *INFO BOT* 💫━━━┓
-┃ 🤖 Nama Bot   : ${global.namebot}
-┃ 💬 Prefix     : ${_p}
-┃ 🖥️ Platform   : ${os.platform()}
-┃ ⏱️ Uptime     : ${uptime}
-┃ 📅 Tanggal    : ${hari}, ${tanggal}
-┃ 👥 Pengguna   : ${Object.keys(global.db?.data?.users || {}).length}
-┃ 📂 Database   : ${dbSize}
+┏━━━ *INFO BOT* ━━━┓
+┃  Nama Bot   : ${global.namebot}
+┃  Prefix     : ${_p}
+┃  Platform   : ${os.platform()}
+┃  Uptime     : ${uptime}
+┃  Tanggal    : ${hari}, ${tanggal}
+┃  Pengguna   : ${Object.keys(global.db?.data?.users || {}).length}
+┃  Database   : ${dbSize}
 ┗━━━━━━━━━━━━━━━━━━━━━━━┛
 `.trim()
 
@@ -58,13 +58,13 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     //  PROFIL PENGGUNA
     // ================================
     let infoUser = `
-┏━━━🌟 *PROFIL ANDA* 🌟━━━┓
-┃ 🪪 Nama     : ${nama}
-┃ 🧩 Status   : ${status}
-┃ 🔰 Exp      : ${exp}
-┃ 💰 Koin     : ${koin}
-┃ ⚡ Limit    : ${limit}
-┃ ⏳ Premium  : ${sisaPremium}
+┏━━━ *PROFIL ANDA* ━━━┓
+┃  Nama     : ${nama}
+┃  Status   : ${status}
+┃  Exp      : ${exp}
+┃  Koin     : ${koin}
+┃  Limit    : ${limit}
+┃  Premium  : ${sisaPremium}
 ┗━━━━━━━━━━━━━━━━━━━━━━━┛
 `.trim()
 
@@ -113,7 +113,7 @@ ${cmds}
     //  FINAL OUTPUT
     // ================================
     let fullMenu = `
-❖ 「 *${getGreeting()}, ${nama}!* 」 ❖
+❖ 「 *${getGreeting()}, ${nama}!* ini adalah daftar dari seluruh fitur ATRI AI ASSISTANT 」 ❖
 
 ${infoBot}
 
@@ -159,10 +159,10 @@ function clockString(ms) {
 function getGreeting() {
   let d = new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' })
   let hour = new Date(d).getHours()
-  if (hour >= 4 && hour < 10) return 'Selamat pagi ☀️'
-  if (hour >= 10 && hour < 15) return 'Selamat siang 🌤️'
-  if (hour >= 15 && hour < 18) return 'Selamat sore 🌇'
-  return 'Selamat malam 🌙'
+  if (hour >= 4 && hour < 10) return 'Selamat pagi'
+  if (hour >= 10 && hour < 15) return 'Selamat siang'
+  if (hour >= 15 && hour < 18) return 'Selamat sore'
+  return 'Selamat malam'
 }
 
 function getRemainingTime(ms) {

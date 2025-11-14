@@ -237,6 +237,7 @@ async function connectionUpdate(update) {
     console.log(await global.reloadHandler(true).catch(console.error))
     global.timestamp.connect = new Date
   }
+
   // console.log(JSON.stringify(update, null, 4))
   if (global.db.data == null) loadDatabase()
     if (connection === "open") {

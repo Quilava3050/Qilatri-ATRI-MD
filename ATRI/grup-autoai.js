@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getCharacter, getAllCharacters, characterExists } from '../lib/characterconfig.js'
+import { getCharacter, getAllCharacters, characterExists } from '../lib/grupaicharconfig.js'
 
 const defaultCharacter = 'atri'
 const aiModels = [
